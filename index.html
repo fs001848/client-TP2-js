@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <script src="lib/vue.min.js"></script>
+    <script src="lib/lodash.min.js"></script>
+
+    <script src="js/script.js"></script>
+
+    <link rel="stylesheet" href="css/styles.css">
+
+    <title>Gestionnaire restaurants VueJS</title>
+</head>
+
+<body>
+<div id="app">
+    <form v-on:submit="ajouterRestaurant">
+        <label>
+            Nom : <input type="text" name="nom" required v-model="nom">
+        </label>
+        <label>
+            Cuisine : <input type="text" name="cuisine" required v-model="cuisine">
+        </label>
+
+        <button>Ajouter</button>
+    </form>
+    <p>
+        <label>
+            Rechercher par nom :
+            <input type="text" v-on:input="getRestaurantsFromServer()"
+                   v-model="nomRecherche">
+        </label>
+    </p>
+    <h1>Nombre de restaurants : {{nbRestaurants}}, nb pages = {{nbPagesDeResultats}}</h1>
+    <p>
+        <input type="range" v-on:input="getRestaurantsFromServer()"
+               value=10 min=2 max =100
+               v-model="pagesize"
+        > : {{this.pagesize}}
+    </p>
+    <button v-on:click="pagePrecedente()"
+            v-bind:class="{inactif:(page==0)}">Page Precedente</button>
+    <button v-on:click="pageSuivante()"
+            v-bind:class="{inactif:(page == (nbPagesDeResultats-1))}"
+    >
+        Page Suivante</button>
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Cuisine </th>
+        </tr>
+        <tbody>
+        <tr v-for="r,index in restaurants"
+            v-on:click="supprimerRestaurant(index)"
+            v-bind:style="{backgroundColor:getColor(index)}"
+            v-bind:class="{bordureRouge:(index === 2)}">
+            <td>{{r.name}}</td>
+            <td> {{r.cuisine}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+
+</html>
