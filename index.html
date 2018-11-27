@@ -53,7 +53,7 @@
         </tr>
         <tbody>
         <tr v-for="r,index in restaurants"
-            v-on:click="supprimerRestaurant(r._id)"
+            v-on:click="supprimerRestaurant(r._id, r.name)"
             v-bind:style="{backgroundColor:getColor(index)}"
             v-bind:class="{bordureRouge:(index === 2)}">
             <td>{{r.name}}</td>
