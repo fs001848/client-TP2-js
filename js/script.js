@@ -48,8 +48,23 @@ function init() {
                         console.log(err);
                     });
             },
-            supprimerRestaurant(index) {
-                this.restaurants.splice(index, 1);
+            supprimerRestaurant(id) {
+                let url = "http://localhost:8080/api/restaurants/" + id;
+
+                fetch(url, {
+                    method: "DELETE",
+                })
+                    .then((responseJSON) => {
+                        responseJSON.json()
+                            .then((res) =>{
+                                // Maintenant res est un vrai objet JavaScript
+                                console.log(res.msg);
+                                this.getRestaurantsFromServer();
+                            });
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                    });
             },
             ajouterRestaurant(event) {
                 // eviter le comportement par defaut
