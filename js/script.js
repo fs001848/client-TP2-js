@@ -48,23 +48,32 @@ function init() {
                         console.log(err);
                     });
             },
-            supprimerRestaurant(id) {
-                let url = "http://localhost:8080/api/restaurants/" + id;
+            supprimerRestaurant(id,nom) {
+                var choix = confirm("Supprimer : " + nom + " ?");
+                if (choix) {
+                    console.log("on supprime");
+                    let url = "http://localhost:8080/api/restaurants/" + id;
 
-                fetch(url, {
-                    method: "DELETE",
-                })
-                    .then((responseJSON) => {
-                        responseJSON.json()
-                            .then((res) =>{
-                                // Maintenant res est un vrai objet JavaScript
-                                console.log(res.msg);
-                                this.getRestaurantsFromServer();
-                            });
+                    fetch(url, {
+                        method: "DELETE",
                     })
-                    .catch(function (err) {
-                        console.log(err);
-                    });
+                        .then((responseJSON) => {
+                            responseJSON.json()
+                                .then((res) =>{
+                                    // Maintenant res est un vrai objet JavaScript
+                                    console.log(res.msg);
+                                    this.getRestaurantsFromServer();
+                                });
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+                }
+                else {
+                    console.log("on ne supprime pas");
+                }
+
+
             },
             ajouterRestaurant(event) {
                 // eviter le comportement par defaut
