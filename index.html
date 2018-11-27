@@ -50,14 +50,18 @@
         <tr>
             <th>Nom</th>
             <th>Cuisine </th>
+            <th></th>
+            <th></th>
         </tr>
         <tbody>
         <tr v-for="r,index in restaurants"
-            v-on:click="supprimerRestaurant(r._id, r.name)"
             v-bind:style="{backgroundColor:getColor(index)}"
             v-bind:class="{bordureRouge:(index === 2)}">
             <td>{{r.name}}</td>
             <td> {{r.cuisine}}</td>
+            <td id="edit"><img src="images/edit.png" width="25px"></td>
+            <td v-on:click="supprimerRestaurant(r._id, r.name)"
+                    id="delete"><img src="images/delete.png" width="25px"></td>
         </tr>
         </tbody>
     </table>

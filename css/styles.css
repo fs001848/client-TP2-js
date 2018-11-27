@@ -33,3 +33,12 @@ input:valid {
     disabled:true;
     color:lightGrey;
 }
+
+#delete, #edit {
+    background-color: aqua;
+    width: 25px;
+}
+
+#delete:hover {
+    opacity: 0.3;
+}
