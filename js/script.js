@@ -73,6 +73,54 @@ function init() {
                     console.log("on ne supprime pas");
                 }
 
+            },
+
+            editRestaurant(id, olderName, olderCuisine){
+                var newName = prompt("Modifier le nom : ", olderName);
+                if (newName == null || newName == "") {
+                    console.error("modification nom impossible !");
+                    newName = olderName;
+                } else {
+                    console.log("modification nom ok");
+                }
+
+                var newCuisine = prompt("Modifier la cuisine : ", olderCuisine);
+                if (newCuisine == null || olderCuisine == "") {
+                    console.error("modification cuisine impossible !");
+                    newCuisine = olderCuisine;
+                } else {
+                    console.log("modification cuisine ok");
+                }
+
+                var choix = confirm("Validez-vous la modification : \n" +
+                    "Nom : " + newName + "\n" + "Cuisine : " + newCuisine);
+                if (choix) {
+
+                    let url = "http://localhost:8080/api/restaurants/" + id;
+                    let form = new FormData();
+                    form.append("_id",id);
+                    form.append("nom",newName);
+                    form.append("cuisine",newCuisine);
+                    fetch(url, {
+                        method: "PUT",
+                        body: form
+                    })
+                        .then((responseJSON) =>{
+                            responseJSON.json()
+                                .then((res) =>{
+                                    afficheReponsePUT(res);
+                                });
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+                    console.log("on modifie");
+                    this.getRestaurantsFromServer();
+
+                }
+                else {
+                    console.log("on ne modifie pas");
+                }
 
             },
             ajouterRestaurant(event) {

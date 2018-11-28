@@ -42,3 +42,6 @@ input:valid {
 #delete:hover {
     opacity: 0.3;
 }
+#edit:hover {
+    opacity: 0.3;
+}
