@@ -49,7 +49,7 @@ function init() {
                     });
             },
             supprimerRestaurant(id,nom) {
-                var choix = confirm("Supprimer : " + nom + " ?");
+                let choix = confirm("Supprimer : " + nom + " ?");
                 if (choix) {
                     console.log("on supprime");
                     let url = "http://localhost:8080/api/restaurants/" + id;
@@ -76,23 +76,23 @@ function init() {
             },
 
             editRestaurant(id, olderName, olderCuisine){
-                var newName = prompt("Modifier le nom : ", olderName);
-                if (newName == null || newName == "") {
+                let newName = prompt("Modifier le nom : ", olderName);
+                if (newName == null || newName === "") {
                     console.error("modification nom impossible !");
                     newName = olderName;
                 } else {
                     console.log("modification nom ok");
                 }
 
-                var newCuisine = prompt("Modifier la cuisine : ", olderCuisine);
-                if (newCuisine == null || olderCuisine == "") {
+                let newCuisine = prompt("Modifier la cuisine : ", olderCuisine);
+                if (newCuisine == null || olderCuisine === "") {
                     console.error("modification cuisine impossible !");
                     newCuisine = olderCuisine;
                 } else {
                     console.log("modification cuisine ok");
                 }
 
-                var choix = confirm("Validez-vous la modification : \n" +
+                let choix = confirm("Validez-vous la modification : \n" +
                     "Nom : " + newName + "\n" + "Cuisine : " + newCuisine);
                 if (choix) {
 
@@ -168,6 +168,18 @@ function init() {
             pageSuivante() {
                 if (this.page < this.nbPagesDeResultats) {
                     this.page++;
+                    this.getRestaurantsFromServer();
+                }
+            },
+            pageDebut(){
+                if (this.page !== 0) {
+                    this.page = 0;
+                    this.getRestaurantsFromServer();
+                }
+            },
+            pageFin() {
+                if (this.page < this.nbPagesDeResultats) {
+                    this.page = this.nbPagesDeResultats -1;
                     this.getRestaurantsFromServer();
                 }
             }

@@ -40,12 +40,16 @@
                v-model="pagesize"
         > : {{this.pagesize}}
     </p>
+    <button v-on:click="pageDebut()"
+            v-bind:class="{inactif:(page==0)}">Debut</button>
     <button v-on:click="pagePrecedente()"
             v-bind:class="{inactif:(page==0)}">Page Precedente</button>
     <button v-on:click="pageSuivante()"
             v-bind:class="{inactif:(page == (nbPagesDeResultats-1))}"
     >
         Page Suivante</button>
+    <button v-on:click="pageFin()"
+            v-bind:class="{inactif:(page == (nbPagesDeResultats-1))}">Fin</button>
     <table>
         <tr>
             <th>Nom</th>
