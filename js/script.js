@@ -48,6 +48,14 @@ function init() {
                         console.log(err);
                     });
             },
+            debounceRecherche(){
+                var run = () =>{
+                    this.getRestaurantsFromServer();
+                    console.log("wait 300ms");
+                };
+                var deb = _.debounce(run,300);
+                deb();
+            },
             supprimerRestaurant(id,nom) {
                 let choix = confirm("Supprimer : " + nom + " ?");
                 if (choix) {
