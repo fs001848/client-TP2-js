@@ -4,15 +4,36 @@ function init() {
     new Vue({
         el: "#app",
         data: {
+            dialog: false,
+            headers: [
+                {
+                    text: 'Restaurants (nom)',
+                    align: 'left',
+                    sortable: true,
+                    value: 'name'
+                },
+                { text: 'Cuisine', value: 'cuisine', sortable:true },
+                { text: 'Actions', value: 'name', sortable: false }
+            ],
             restaurants: [{
                 nom: 'café de Paris',
-                cuisine: 'Française'
+                cuisine: 'Française',
             },
                 {
                     nom: 'Sun City Café',
-                    cuisine: 'Américaine'
+                    cuisine: 'Américaine',
                 }
             ],
+            editedIndex: -1,
+            editedItem: {
+                name: '',
+                cuisine: ''
+
+            },
+            defaultItem: {
+                name: '',
+                cuisine: ''
+            },
             nbRestaurants: 0,
             nbPagesDeResultats:0,
             nom: '',
@@ -20,6 +41,21 @@ function init() {
             page: 0,
             pagesize: 10,
             nomRecherche: ""
+        },
+        computed: {
+            formTitle () {
+                return this.editedIndex === -1 ? 'Nouveau Restaurant' : 'Modifier Restaurant'
+            }
+        },
+
+        watch: {
+            dialog (val) {
+                val || this.close()
+            }
+        },
+
+        created () {
+            this.getRestaurantsFromServer();
         },
         mounted() {
             console.log("AVANT AFFICHAGE");
@@ -42,6 +78,9 @@ function init() {
                                 this.restaurants = responseJS.data;
                                 this.nbRestaurants = responseJS.count;
                                 this.nbPagesDeResultats = Math.ceil(this.nbRestaurants/this.pagesize);
+                                if (this.page > this.nbPagesDeResultats){
+                                    this.page = 0;
+                                }
                             });
                     })
                     .catch(function (err) {
@@ -56,11 +95,12 @@ function init() {
                 var deb = _.debounce(run,300);
                 deb();
             },
-            supprimerRestaurant(id,nom) {
-                let choix = confirm("Supprimer : " + nom + " ?");
+            deleteItem (item) {
+                console.log(item._id + " " + item.name);
+                let choix = confirm('Voulez vous vraiment supprimer le restaurant :\n'+item.name);
                 if (choix) {
                     console.log("on supprime");
-                    let url = "http://localhost:8080/api/restaurants/" + id;
+                    let url = "http://localhost:8080/api/restaurants/" + item._id;
 
                     fetch(url, {
                         method: "DELETE",
@@ -80,35 +120,24 @@ function init() {
                 else {
                     console.log("on ne supprime pas");
                 }
-
             },
 
-            editRestaurant(id, olderName, olderCuisine){
-                let newName = prompt("Modifier le nom : ", olderName);
-                if (newName == null || newName === "") {
-                    console.error("modification nom impossible !");
-                    newName = olderName;
-                } else {
-                    console.log("modification nom ok");
-                }
+            close () {
+                this.dialog = false;
+                setTimeout(() => {
+                    this.editedItem = Object.assign({}, this.defaultItem);
+                    this.editedIndex = -1;
+                    this.getRestaurantsFromServer();
+                }, 300)
+            },
 
-                let newCuisine = prompt("Modifier la cuisine : ", olderCuisine);
-                if (newCuisine == null || olderCuisine === "") {
-                    console.error("modification cuisine impossible !");
-                    newCuisine = olderCuisine;
-                } else {
-                    console.log("modification cuisine ok");
-                }
-
-                let choix = confirm("Validez-vous la modification : \n" +
-                    "Nom : " + newName + "\n" + "Cuisine : " + newCuisine);
-                if (choix) {
-
-                    let url = "http://localhost:8080/api/restaurants/" + id;
+            save () {
+                if (this.editedIndex > -1) {
+                    let url = "http://localhost:8080/api/restaurants/" + this.editedItem._id;
                     let form = new FormData();
-                    form.append("_id",id);
-                    form.append("nom",newName);
-                    form.append("cuisine",newCuisine);
+                    form.append("_id",this.editedItem._id);
+                    form.append("nom",this.editedItem.name);
+                    form.append("cuisine",this.editedItem.cuisine);
                     fetch(url, {
                         method: "PUT",
                         body: form
@@ -123,46 +152,33 @@ function init() {
                             console.log(err);
                         });
                     console.log("on modifie");
-                    this.getRestaurantsFromServer();
+                } else {
+                    console.log("EXIST : " +this.editedItem._id +" "+ this.editedItem.name+" "+this.editedItem.cuisine);
 
-                }
-                else {
-                    console.log("on ne modifie pas");
-                }
+                    // On envoie une requête POST au serveur
+                    let url = "http://localhost:8080/api/restaurants";
+                    // On crée le formulaire
+                    let form = new FormData();
+                    form.append("nom",this.editedItem.name);
+                    form.append("cuisine",this.editedItem.cuisine);
 
-            },
-            ajouterRestaurant(event) {
-                // eviter le comportement par defaut
-                event.preventDefault();
-
-                // On recupère le formulaire
-                let form = event.target;
-
-                // On recupere les données du formulaire
-                let dataFormulaire = new FormData(form);
-
-                // On envoie une requête POST au serveur
-                let url = "http://localhost:8080/api/restaurants";
-
-                fetch(url, {
-                    method:"POST",
-                    body: dataFormulaire
-                })
-                    .then((responseJSON) => {
-                        responseJSON.json()
-                            .then((responseJS) => {
-                                // Maintenant res est un vrai objet JavaScript
-                                console.log(responseJS.msg);
-                                this.getRestaurantsFromServer();
-                            });
+                    fetch(url, {
+                        method:"POST",
+                        body: form
                     })
-                    .catch(function (err) {
-                        console.log(err);
-                    });
+                        .then((responseJSON) => {
+                            responseJSON.json()
+                                .then((responseJS) => {
+                                    // Maintenant res est un vrai objet JavaScript
+                                    console.log(responseJS.msg);
+                                });
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+                    }
+                this.close();
 
-                // On remet les champs du formulaire à zéro
-                this.nom = "";
-                this.cuisine = "";
             },
             getColor(index) {
                 return (index % 2) ? 'lightBlue' : 'pink';
@@ -174,7 +190,7 @@ function init() {
                 }
             },
             pageSuivante() {
-                if (this.page < this.nbPagesDeResultats) {
+                if (this.page < this.nbPagesDeResultats - 1) {
                     this.page++;
                     this.getRestaurantsFromServer();
                 }

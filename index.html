@@ -4,11 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    
+
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons'>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/vuetify@1.3.11/dist/vuetify.min.css'>
+
     <script src="lib/vue.min.js"></script>
     <script src="lib/lodash.min.js"></script>
-
     <script src="js/script.js"></script>
+
+    <script src='https://cdn.jsdelivr.net/npm/babel-polyfill/dist/polyfill.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/vuetify@1.3.11/dist/vuetify.min.js'></script>
 
     <link rel="stylesheet" href="css/styles.css">
 
@@ -17,60 +22,130 @@
 
 <body>
 <div id="app">
-    <form v-on:submit="ajouterRestaurant">
-        <label>
-            Nom : <input type="text" name="nom" required v-model="nom">
-        </label>
-        <label>
-            Cuisine : <input type="text" name="cuisine" required v-model="cuisine">
-        </label>
+    <v-app id="inspire">
+        <div>
+            <v-toolbar flat color="white">
+                <v-toolbar-title>Gestionnaire Restaurants</v-toolbar-title>
+                <v-divider
+                        class="mx-2"
+                        inset
+                        vertical
+                ></v-divider>
 
-        <button>Ajouter</button>
-    </form>
-    <p>
-        <label>
-            Rechercher par nom :
-            <input type="text" v-on:input="debounceRecherche()"
-                   v-model="nomRecherche">
-        </label>
-    </p>
-    <h1>Nombre de restaurants : {{nbRestaurants}}, nb pages = {{nbPagesDeResultats}}</h1>
-    <p>
-        <input type="range" v-on:input="getRestaurantsFromServer()"
-               value=10 min=2 max =100
-               v-model="pagesize"
-        > : {{this.pagesize}}
-    </p>
-    <button v-on:click="pageDebut()"
-            v-bind:class="{inactif:(page==0)}">Debut</button>
-    <button v-on:click="pagePrecedente()"
-            v-bind:class="{inactif:(page==0)}">Page Precedente</button>
-    <button v-on:click="pageSuivante()"
-            v-bind:class="{inactif:(page == (nbPagesDeResultats-1))}"
-    >
-        Page Suivante</button>
-    <button v-on:click="pageFin()"
-            v-bind:class="{inactif:(page == (nbPagesDeResultats-1))}">Fin</button>
-    <table>
-        <tr>
-            <th>Nom</th>
-            <th>Cuisine </th>
-            <th></th>
-            <th></th>
-        </tr>
-        <tbody>
-        <tr v-for="r,index in restaurants"
-            v-bind:style="{backgroundColor:getColor(index)}"
-            v-bind:class="{bordureRouge:(index === 2)}">
-            <td>{{r.name}}</td>
-            <td> {{r.cuisine}}</td>
-            <td v-on:click="editRestaurant(r._id, r.name, r.cuisine)"
-                id="edit"><img src="images/edit.png" width="25px"></td>
-            <td v-on:click="supprimerRestaurant(r._id, r.name)"
-                id="delete"><img src="images/delete.png" width="25px"></td>
-        </tr>
-        </tbody>
-    </table>
+                <v-spacer></v-spacer>
+
+                <v-text-field
+                        v-model="nomRecherche"
+                        v-on:input="debounceRecherche()"
+                        append-icon="search"
+                        label="Rechercher"
+                        single-line
+                        hide-details
+                ></v-text-field>
+
+            </v-toolbar>
+
+
+            <v-dialog v-model="dialog" max-width="500px">
+                <v-btn slot="activator" color="primary" dark class="mb-2">Ajouter</v-btn>
+                <v-card>
+                    <v-card-title>
+                        <span class="headline">Nouveau Restaurant</span>
+                    </v-card-title>
+
+                    <v-card-text>
+                        <v-container grid-list-md>
+                            <v-layout wrap>
+                                <v-flex xs12 sm6 md4>
+                                    <v-text-field v-model="editedItem.name" label="Nom restaurant"></v-text-field>
+                                    <v-text-field v-model="editedItem.cuisine" label="Cuisine"></v-text-field>
+                            </v-layout>
+                        </v-container>
+                    </v-card-text>
+
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" flat @click="close">Annuler</v-btn>
+                        <v-btn color="blue darken-1" flat @click="save">Valider</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <div>
+                <template>
+
+                    <v-icon
+                            medium
+                            @click="pageDebut()"
+                    >
+                        first_page
+                    </v-icon>
+
+                    <v-icon
+                            medium
+                            @click="pagePrecedente()"
+                    >
+                        chevron_left
+                    </v-icon>
+                    {{page+1}} of {{nbPagesDeResultats}}
+                    <v-icon
+                            medium
+                            @click="pageSuivante()"
+                    >
+                        chevron_right
+                    </v-icon>
+
+                    <v-icon
+                            medium
+                            @click="pageFin()"
+                    >
+                        last_page
+                    </v-icon>
+
+                </template>
+            </div>
+
+
+            <v-data-table
+                    :headers="headers"
+                    :items="restaurants"
+                    :search ="nomRecherche"
+                    class="elevation-1"
+                    :search='search'
+                    hide-actions
+
+            >
+
+                <template slot="items" slot-scope="props">
+                    <td>{{ props.item.name }}</td>
+                    <td class="text-xs-left">{{ props.item.cuisine }}</td>
+                    <td class="justify-center layout px-0">
+                        <v-icon
+                                small
+                                class="mr-2"
+                                @click="editRestaurant(props.item)"
+                        >
+                            edit
+                        </v-icon>
+                        <v-icon
+                                small
+                                @click="deleteItem(props.item)"
+                        >
+                            delete
+                        </v-icon>
+                    </td>
+                </template>
+
+                <v-alert slot="no-data" :value="true" color="error" icon="warning">
+                    Pas de résultat pour : "{{ nomRecherche }}"
+                </v-alert>
+
+
+
+
+            </v-data-table>
+        </div>
+    </v-app>
 </div>
 </body>
 
