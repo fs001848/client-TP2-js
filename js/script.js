@@ -95,6 +95,11 @@ function init() {
                 var deb = _.debounce(run,300);
                 deb();
             },
+            editRestaurant (item) {
+                this.editedIndex = this.restaurants.indexOf(item)
+                this.editedItem = Object.assign({}, item)
+                this.dialog = true
+            },
             deleteItem (item) {
                 console.log(item._id + " " + item.name);
                 let choix = confirm('Voulez vous vraiment supprimer le restaurant :\n'+item.name);
