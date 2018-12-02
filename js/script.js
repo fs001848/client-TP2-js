@@ -211,6 +211,14 @@ function init() {
                     this.page = this.nbPagesDeResultats -1;
                     this.getRestaurantsFromServer();
                 }
+            },
+            setRowPerPage(n){
+                //pour bloquer si une recherche précise est en cours et que on augmente la taille
+                if (this.nbRestaurants >= n){
+                    this.pagesize = n;
+                    this.getRestaurantsFromServer();
+                }
+
             }
         }
     })

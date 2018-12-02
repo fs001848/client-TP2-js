@@ -73,34 +73,48 @@
 
             <div>
                 <template>
+                    <v-container fluid>
+                        <v-layout row wrap align-center>
+                            <v-flex xs6>
+                                <v-icon
+                                        medium
+                                        @click="pageDebut()"
+                                >
+                                    first_page
+                                </v-icon>
 
-                    <v-icon
-                            medium
-                            @click="pageDebut()"
-                    >
-                        first_page
-                    </v-icon>
+                                <v-icon
+                                        medium
+                                        @click="pagePrecedente()"
+                                >
+                                    chevron_left
+                                </v-icon>
+                                {{page+1}} of {{nbPagesDeResultats}}
+                                <v-icon
+                                        medium
+                                        @click="pageSuivante()"
+                                >
+                                    chevron_right
+                                </v-icon>
 
-                    <v-icon
-                            medium
-                            @click="pagePrecedente()"
-                    >
-                        chevron_left
-                    </v-icon>
-                    {{page+1}} of {{nbPagesDeResultats}}
-                    <v-icon
-                            medium
-                            @click="pageSuivante()"
-                    >
-                        chevron_right
-                    </v-icon>
+                                <v-icon
+                                        medium
+                                        @click="pageFin()"
+                                >
+                                    last_page
+                                </v-icon>
+                            </v-flex>
+                            <v-flex xs6>
+                                <v-select
+                                        :items=['2','10','20']
+                                        label="Lignes par page"
+                                        @change="setRowPerPage"
+                                ></v-select>
 
-                    <v-icon
-                            medium
-                            @click="pageFin()"
-                    >
-                        last_page
-                    </v-icon>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
+
 
                 </template>
             </div>
